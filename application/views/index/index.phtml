@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/public/pc/css/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="/public/pc/css/demo.css" />
+    <link rel="stylesheet" type="text/css" href="/public/pc/css/component.css" />
+    <link rel="stylesheet" href="/public/pc/css/index.css">
+    <link rel="stylesheet" href="/public/pc/css/newin.css">
+    <script>
+    document.documentElement.className = 'js';
+    </script>
+    <style>
+         .buttonEmali>.EmaliText{
+            line-height: 2.6rem;
+         }
+         a.entrance{
+        display: block;
+        width:12.17rem;
+        height: 2.5rem;
+        position: fixed;
+        z-index:200;
+        bottom:2.5rem;
+      }
+      a.entrance>img{
+        width:100%;
+      }
+      body{
+       display:flex;
+       justify-content: center; 
+      }
+    </style>
+    <title>风度</title>
+</head>
+<body>
+    <a href="" class='entrance' style="display:none">
+      <img src="/public/pc/image/entrance.png" alt="" >  
+    </a>
+    <svg class="hidden">
+      <defs>
+        <symbol id="icon-arrow" viewBox="0 0 24 24">
+          <title>arrow</title>
+          <polygon points="6.3,12.8 20.9,12.8 20.9,11.2 6.3,11.2 10.2,7.2 9,6 3.1,12 9,18 10.2,16.8 " />
+        </symbol>
+        <symbol id="icon-drop" viewBox="0 0 24 24">
+          <title>drop</title>
+          <path d="M12,21c-3.6,0-6.6-3-6.6-6.6C5.4,11,10.8,4,11.4,3.2C11.6,3.1,11.8,3,12,3s0.4,0.1,0.6,0.3c0.6,0.8,6.1,7.8,6.1,11.2C18.6,18.1,15.6,21,12,21zM12,4.8c-1.8,2.4-5.2,7.4-5.2,9.6c0,2.9,2.3,5.2,5.2,5.2s5.2-2.3,5.2-5.2C17.2,12.2,13.8,7.3,12,4.8z" />
+          <path d="M12,18.2c-0.4,0-0.7-0.3-0.7-0.7s0.3-0.7,0.7-0.7c1.3,0,2.4-1.1,2.4-2.4c0-0.4,0.3-0.7,0.7-0.7c0.4,0,0.7,0.3,0.7,0.7C15.8,16.5,14.1,18.2,12,18.2z" />
+        </symbol>
+      </defs>
+    </svg>
+    <main>
+      <!-- Initial markup -->
+      <div class="segmenter" style="background-image: url(/public/pc/image/indexbg.png)"></div>
+      <h2 class="trigger-headline trigger-headline--hidden"><span>4</span><span>I</span><span>N</span><span>T</span><span>o</span></h2>
+      <div class="bottom-nav">
+        <button class="btn  btn--trigger " style="display:none">Show Effect</button>
+      </div>
+    </main>
+    <div class="headDiv">
+      <header>
+           <img src="/public/pc/image/caid.png" class="menu">
+           <div class="title">
+             <img src="/public/pc/image/logo2x.png" class="logo">
+           </div>   
+      </header>
+    </div>  
+    <!-- 分享 -->
+    <div class="emali">
+        <div class="rgb">
+            <div class="Bhead">
+                <img src="/public/pc/image/cols.png" class="menu">
+                <div class="title">
+                <img src="/public/pc/image/Lxtit.png" class="logo">
+                </div>
+            </div>
+            <!-- 邮箱 -->
+            <div class="buttonEmali">
+                <span class="EmaliImg">
+                    <img src="/public/pc/image/emali.png" alt="">
+                </span>
+                <span class="EmaliText">
+                    Service@4into.com
+                </span>
+            </div>
+            <!-- QRcode -->
+            <div class="QRcode">
+                 <div class="micro">
+                     <div class="QRImg"> 
+                        <img src="/public/pc/image/wb.jpg" alt="">
+                     </div>
+                     <span>微博</span> 
+                 </div>
+                 <div class="Public">
+                     <div class="QRImg"> 
+                        <img src="/public/pc/image/wx.jpg" alt="">
+                     </div>
+                     <span>微信公众号</span>
+                 </div>
+            </div>
+            <!-- <div class="QRcode" style="margin-top:2rem">
+                 <div class="micro">
+                     <div class="QRImg"> 
+                        <img src="/public/pc/image/fd.png" alt="">
+                     </div>
+                     <span>校园定向赛</span> 
+                 </div>
+            </div> -->
+        </div>    
+    </div>
+    <!-- sizeD -->
+    <div class='ER'>
+        <div class="QRsize">
+        <div class="sizeImg">
+            <img src="" alt="">
+        </div>
+        </div>
+    </div>    
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script>
+         $(function(){
+          $('header>img.menu').click(function(){
+              $('.emali').fadeIn();
+          })
+          $('.emali>.rgb>.Bhead>img.menu').click(function(){
+              $('.emali').fadeOut();
+          })  
+          $('.QRcode>div>.QRImg').click(function(){
+              var src=$(this).children('img').attr('src');
+              $('.QRsize>.sizeImg>img').attr('src',src);
+              $('.ER').fadeIn();
+          })
+          $('.ER').click(function(){
+              $(this).fadeOut();
+          })
+          $('.ER>.QRsize>.sizeImg>img').click(function(e){
+                     e.stopPropagation();
+          })
+       })
+       window.addEventListener("onorientationchange" in window ? "orientationchange" : "resize", hengshuping, false);
+            $(function(){  //页面加载时检查
+                hengshuping();
+            });    
+            function hengshuping() {
+                if (window.orientation == 0 || window.orientation == 180) {
+                        orientation = 'portrait';
+                        return false;
+                    }
+                    else if (window.orientation == 90 || window.orientation == -90) {
+                        orientation = 'landscape';
+                        setTimeout(function(){alert('为了更好的体验,请保持竖屏浏览')},1000) 
+                        return false;
+                    }
+        } 
+    </script>
+    <script src="/public/pc/js/rem.js"></script>
+    <script src="/public/pc/js/anime.min.js"></script>
+    <script src="/public/pc/js/imagesloaded.pkgd.min.js"></script>
+    <script src="/public/pc/js/main.js"></script>
+    <script>
+    (function() {
+      var headline = document.querySelector('.trigger-headline'),
+        trigger = document.querySelector('.btn--trigger'),
+        segmenter = new Segmenter(document.querySelector('.segmenter'), {
+          pieces: 8,
+          positions: [
+            {top: 0, left: 0, width:100, height: 100},
+            {top: 0, left: 0, width: 100, height: 100},
+            {top: 0, left: 0, width: 100, height: 100},
+            {top: 0, left: 0, width: 100, height: 100},
+            {top: 0, left: 0, width: 100, height: 100},
+            {top: 0, left: 0, width: 100, height: 100},
+            {top: 0, left: 0, width: 100, height: 100},
+            {top: 0, left: 0, width: 100, height: 100}
+          ],
+          shadows: false,
+          parallax: true,
+          parallaxMovement: {min: 0, max: 0},
+          animation: {
+            duration: 2500,
+            easing: 'easeOutExpo',
+            delay: 0,
+            opacity: 0.1,
+            translateZ: {min: 0, max: 0}
+          },
+          onReady: function() {
+            trigger.classList.remove('btn--hidden');
+            // trigger.addEventListener('click', function() {
+            setInterval(function(){
+               var po_x=$('.segmenter>.segmenter__background').css('background-position');
+               $('.segmenter').css('background-position',po_x);
+               // $('.segmenter__background').css('background-position',po_x);
+               $('.segmenter__piece').css('background-position',po_x);
+               $('.segmenter__pieces').fadeIn(1500)
+               console.log(po_x)
+               segmenter.animate();
+               headline.classList.remove('trigger-headline--hidden');
+               setTimeout(function(){
+                  headline.classList.add('trigger-headline--hidden');
+                  $('.segmenter__pieces').fadeOut(1500);  
+               },1500)
+            },3000)
+            $(function(){
+              segmenter.animate();
+              headline.classList.remove('trigger-headline--hidden');
+              $('.segmenter>.segmenter__background').addClass('contents');
+               setTimeout(function(){
+                  headline.classList.add('trigger-headline--hidden');
+                  $('.segmenter__pieces').fadeOut(1500);
+               },1500)          
+            })
+            
+          }
+        });
+    })();
+    
+    // setTimeout(function(){
+    //       $('.segmenter>.segmenter__background').addClass('contents')
+    // },3000);
+    </script>
+</body>
+</html>

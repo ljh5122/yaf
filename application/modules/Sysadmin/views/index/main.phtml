@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>后台管理</title>
+	<link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css">
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/lib/chart/zui.chart.min.js"></script>
+</head>
+<body>
+<div class="panel panel-successcvcv" style="padding-top:37px;">
+	<div class="panel-heading navbar-fixed-top" style="background:#ddf4df;">系统主页</div>
+	<div class="panel-body">
+		<div>每日授权用户统计 ( 最近 30 天 )</div>
+		<canvas id="myLineChart" width="1750" height="500"></canvas>
+	</div>
+	<script type="text/javascript">
+		var data = {
+		    // labels 数据包含依次在X轴上显示的文本标签
+		    labels: [<?php echo $chart['labels']; ?>],
+		    datasets: [{
+		        // 数据集名称，会在图例中显示
+		        label: "用户数量",
+		        color: "red",
+		        // 也可以不指定颜色主题，使用下面的值来分别应用颜色设置，这些值会覆盖color生成的主题颜色设置
+		        fillColor: "#ffcccc", //填充颜色
+		        strokeColor: "red", //边线颜色
+		        pointColor: "red", //点颜色
+		        pointStrokeColor: "#fff", //鼠标进入点时的颜色
+		        pointHighlightFill: "#fff",
+		        pointHighlightStroke: "rgba(220,220,220,1)",
+
+		        // 数据集
+		        data: [<?php echo $chart['data']; ?>]
+		    }]
+		};
+
+		// 图表配置项，可以留空来使用默认的配置
+		var options = {
+			responsive: true,
+		};
+
+		$("#myLineChart").lineChart(data, options);
+	</script>
+
+	<div class="panel-body">
+		<div class="col-sm-3">
+			<canvas id="myPieChart1" width="300" height="300"></canvas>
+		</div>
+		<script type="text/javascript">
+			var data = [{
+				value: <?php echo $myPieChart1[1]; ?>,
+				color: "blue", // 使用颜色名称
+				label: "用户人数（男）"
+			},{
+				value: <?php echo $myPieChart1[2]; ?>,
+				color:"#F7464A", // 自定义颜色
+				label: "用户人数（女）"
+			},{
+				value: <?php echo $myPieChart1[0]; ?>,
+				color:"green", // 自定义颜色
+				label: "用户人数（保密）"
+			}];
+
+			// 创建饼图
+			$("#myPieChart1").pieChart(data, {scaleShowLabels: true});
+		</script>
+
+		<div class="col-sm-3">
+			<canvas id="myPieChart2" width="300" height="300"></canvas>
+		</div>
+		<script type="text/javascript">
+			var data = [{
+				value: <?php echo $myPieChart2[1]; ?>,
+				color: "green", // 使用颜色名称
+				label: "造型（启用）"
+			},{
+				value: <?php echo $myPieChart2[2]; ?>,
+				color:"#F7464A", // 自定义颜色
+				label: "造型（禁用）"
+			}];
+
+			// 创建饼图
+			$("#myPieChart2").pieChart(data, {scaleShowLabels: true});
+		</script>
+
+		<div class="col-sm-3">
+			<canvas id="myPieChart3" width="300" height="300"></canvas>
+		</div>
+		<script type="text/javascript">
+			var data = [{
+				value: <?php echo $myPieChart3[1]; ?>,
+				color: "green", // 使用颜色名称
+				label: "装备（启用）"
+			},{
+				value: <?php echo $myPieChart3[2]; ?>,
+				color:"#F7464A", // 自定义颜色
+				label: "装备（禁用）"
+			}];
+
+			// 创建饼图
+			$("#myPieChart3").pieChart(data, {scaleShowLabels: true});
+		</script>
+
+		<div class="col-sm-3">
+			<canvas id="myPieChart4" width="300" height="300"></canvas>
+		</div>
+		<script type="text/javascript">
+			var data = [{
+				value: <?php echo $myPieChart4[1]; ?>,
+				color: "green", // 使用颜色名称
+				label: "资讯（启用）"
+			},{
+				value: <?php echo $myPieChart4[2]; ?>,
+				color:"#F7464A", // 自定义颜色
+				label: "资讯（禁用）"
+			}];
+
+			// 创建饼图
+			$("#myPieChart4").pieChart(data, {scaleShowLabels: true});
+		</script>
+	</div>
+</div>
+</body>
+</html>

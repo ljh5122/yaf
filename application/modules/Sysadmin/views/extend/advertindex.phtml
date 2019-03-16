@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>装备管理</title>
+	<link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css">
+	<link rel="stylesheet" href="/public/zui/dist/lib/datatable/zui.datatable.min.css">
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+	<script src="/public/zui/dist/lib/datatable/zui.datatable.min.js"></script>
+	<script src="/public/common/common.js"></script>
+</head>
+<body>
+<div class="panel-successcvcv" style="padding-top:37px;">
+	<div class="panel-heading navbar-fixed-top" style="background:#ddf4df;">
+		<span class="col-sm-1">装备管理</span>
+		<?php
+			if(isset($child_menu[67])) echo '<button class="btn btn-sm menu_edit" data-iframe="advertAdd">新增</button>';
+			if(isset($child_menu[68])) echo '<button class="btn btn-sm menu_batch" type="button" data-type="using">启用</button>';
+			if(isset($child_menu[69])) echo '<button class="btn btn-sm menu_batch" type="button" data-type="forbid">禁用</button>';
+			if(isset($child_menu[70])) echo '<button class="btn btn-sm menu_batch" type="button" data-type="delete">删除</button>';
+		?>
+	</div>
+
+	<div class="panel-body">
+		<form method="post" class="form-horizontal" id="search">
+			<div class="form-group">
+				<div class="col-sm-2">
+					<input type="text" class="form-control input-sm" name="title" placeholder="广告标题">
+				</div>
+				<div class="col-sm-2">
+					<select class="form-control input-sm" name="status">
+						<option value="">所有状态</option>
+						<option value="1">启用</option>
+						<option value="2">禁用</option>
+					</select>
+				</div>
+				<button class="btn btn-sm" type="button" id="menu_search"><i class="icon icon-search"></i></button>
+			</div>
+		</form>
+
+		<form id="advert_list" method="post">
+			<table class="table datatable"></table>
+		</form>
+
+		<div id="pageContent"></div>
+		<script type="text/javascript">
+			$('#pageContent').on('click', '.pager > li > a', function() {
+				var down = $(this).html();
+				var page_code = 1;
+				if (!isNaN(down)) {
+					page_code = down;
+				}
+
+				getData(page_code);
+			});
+		</script>
+	</div>
+</div>
+<script type="text/javascript">
+	$('table.datatable').datatable({checkable: true, checkboxName:'id[]'});
+	getData(1); //初始化数据表格
+
+	// 搜索
+	$(document).on("click", "#menu_search", function(){
+		getData(1);
+	})
+
+	//获取数据
+	function getData(page_code){
+		$.ajax({
+			type:"post",
+			url:"advertIndex/page_code/" + page_code,
+			data:$("#search").serialize(),
+			dataType:"json",
+			success:function(result){
+				var cols = [
+					{width: 100, text: '#', colClass: 'text-center'},
+					{width: 300, text: '标题'},
+					{width: 200, text: '标识'},
+					{width: 200, text: '编辑者'},
+					{width: 200, text: '编辑时间', colClass: 'text-center'},
+					{width: 150, text: '状态', colClass: 'text-center'},
+					{width: 150, text: '操作', colClass: 'text-center'}
+				];
+				var rows = [];
+				var menus = "";
+				$.each(result.list, function(index,obj){
+					menus = '<a href="#" class="menu_edit" data-iframe="advertEdit/id/'+obj.id+'"><i class="icon-edit"></i></a>';
+					obj.status = obj.status == 1 ? "启用" : "禁用";
+					utime = getMyDate(parseInt(obj.utime + '000'));
+					obj.thumb = obj.thumb == '' || obj.thumb == null ? '' : '<img src="'+ obj.thumb +'" height="20">';
+ 					rows.push({checked: false, id:obj.id, data: [obj.id, obj.title, obj.type, obj.updater, utime, obj.status, menus]});
+				});
+
+				$('table.datatable').datatable('load', {cols:cols, rows:rows});
+				$("#pageContent").html(result.page);
+			}
+		});
+	}
+
+	//批量操作
+	$(document).on("click", ".menu_batch", function(){
+		var form = $("#advert_list").serialize();
+		var id = $("input[name='id[]']:checked").val();
+		if (!id) {
+			new $.zui.Messager('请选择操作项！', {type: 'warning',icon: 'warning-sign'}).show();
+		}else{
+			var type = $(this).data('type');
+			$.ajax({
+				type:"post",
+				url:"advertBatch/type/" + type,
+				dataType:"json",
+				data: form,
+				success:function(result){
+					if (result.code == -1) {
+						window.top.relogin();
+					} else if (result.code == 1) {
+						var down = $('.active>a').html();
+						var page_code = !isNaN(down) ? down : 1;
+						getData(page_code);
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+
+	//打开编辑对话框
+	$(document).on("click", ".menu_edit", function(){
+		var iframe = $(this).data("iframe");
+		$.zui.modalTrigger.show({title:'编辑广告', size:'fullscreen', iframe:iframe});
+	})
+
+	//关闭编辑对话框
+	function modal_close(){
+		$.zui.modalTrigger.close();
+	}
+</script>
+</body>
+</html>

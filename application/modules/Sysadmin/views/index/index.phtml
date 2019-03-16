@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>后台模板</title>
+	<link rel="stylesheet" type="text/css" href="/public/zui-1.6.0/dist/css/zui.min.css">
+	<script type="text/javascript" src="/public/zui-1.6.0/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui-1.6.0/dist/js/zui.min.js"></script>
+	<style type="text/css">
+		#content{padding-left: 0px;padding-right: 0px;background:#ddf4df;}
+		iframe{width: 100%; height: 99%; border: 0px;}
+	</style>
+</head>
+<body>
+<div id="content" class="container-fluid">
+	<div class="col-lg-1 visible-lg" style="height:100%;overflow:auto;padding-bottom: 40px;background:#009688;">
+		<nav class="menu" data-ride="menu" style="margin-top: 14px">
+			<ul class="nav nav-primary">
+			<?php
+			$menu_str = '';
+			foreach ($admin['menu'] as $one) {
+				if ($one['url']) {
+					$menu_str .= '<li><a class="menu_model" href="javascript:;" dataa-url="/'.$one['module'].'/'.$one['url'].'"><i class="icon '.$one['icon'].'" style="color: #000"></i>'.$one['name'].'</a></li>';
+				}else{
+					$menu_str .=  '<li class="nav-parent"><a href="javascript:;"><i class="icon '.$one['icon'].'" style="color: #000"></i>'.$one['name'].'</a>';
+					if (isset($one['child']) && $one['child']) {
+						$menu_str .=  '<ul class="nav">';
+						foreach ($one['child'] as $two) {
+							$menu_str .= '<li><a class="menu_model" href="javascript:;" dataa-url="/'.$two['module'].'/'.$two['url'].'"><i class="icon '.$two['icon'].'" style="color: #000"></i>'.$two['name'].'</a></li>';
+						}
+
+						$menu_str .=  '</ul>';
+					}
+
+					$menu_str .= '</li>';
+				}
+			}
+
+			echo $menu_str;
+
+			?>
+				<li><a href="javascript:;" data-toggle="modal" data-target="#userModal"><i class="icon icon-cogs" style="color: #000"></i>我的帐户</a></li>
+				<li><a href="quit"><i class="icon icon-off" style="color: #000"></i>退出登录</a></li>
+			</ul>
+		</nav>
+	</div>
+	<div class="navbar-fixed-top visible-xs">
+		<button class="btn btn-block" type="button" href="javascript:;" data-toggle="modal" data-target="#menus"><i class="icon icon-list"></i> 系统菜单</button>
+	</div>
+	<!-- 修改用户对话框HTML -->
+	<div class="modal fade" id="menus">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" id="menus_close"><span aria-hidden="true">×</span></button>
+				</div>
+				<div class="modal-body container">
+					<nav class="menu" data-ride="menu" style="margin-top: 14px">
+						<ul class="nav nav-primary">
+						<?php
+						$menu_str = '';
+						foreach ($admin['menu'] as $one) {
+							if ($one['url']) {
+								$menu_str .= '<li><a class="menu_model" href="javascript:;" dataa-url="/'.$one['module'].'/'.$one['url'].'"><i class="icon '.$one['icon'].'" style="color: #000"></i>'.$one['name'].'</a></li>';
+							}else{
+								$menu_str .=  '<li class="nav-parent"><a href="javascript:;"><i class="icon '.$one['icon'].'" style="color: #000"></i>'.$one['name'].'</a>';
+								if (isset($one['child']) && $one['child']) {
+									$menu_str .=  '<ul class="nav">';
+									foreach ($one['child'] as $two) {
+										$menu_str .= '<li><a class="menu_model" href="javascript:;" dataa-url="/'.$two['module'].'/'.$two['url'].'"><i class="icon '.$two['icon'].'" style="color: #000"></i>'.$two['name'].'</a></li>';
+									}
+
+									$menu_str .=  '</ul>';
+								}
+
+								$menu_str .= '</li>';
+							}
+						}
+
+						echo $menu_str;
+
+						?>
+							<li><a href="javascript:;" data-toggle="modal" data-target="#userModal"><i class="icon icon-cogs" style="color: #000"></i>我的帐户</a></li>
+							<li><a href="quit"><i class="icon icon-off" style="color: #000"></i>退出登录</a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-lg-11" style="height:100%;">
+		<div class="visible-xs" style="width:100px;height:50px;"></div>
+		<iframe src="main" id="iframeContent"></iframe>
+	</div>
+
+	<!-- 修改用户对话框HTML -->
+	<div class="modal fade" id="userModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+					<h4 class="modal-title">编辑个人信息</h4>
+				</div>
+				<div class="modal-body container">
+					<form action="" method="post" class="form-horizontal">
+						<div class="form-group">
+							<label class="col-sm-2">用户名：</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" name="name" value="<?php echo $admin['name']; ?>" >
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2">昵 称：</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" name="nickName" value="<?php echo $admin['nickName']; ?>" >
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2">新密码：</label>
+							<div class="col-sm-6">
+								<input type="password" class="form-control" name="password">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2">确认密码：</label>
+							<div class="col-sm-6">
+								<input type="password" class="form-control" name="password2">
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal" id="close">关闭</button>
+					<button class="btn btn-primary" id="user_edit">保存</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 超时登录对话框HTML -->
+	<div class="modal fade" id="modal_login">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+					<h4 class="modal-title">会话超时，重新登录</h4>
+				</div>
+				<div class="modal-body container">
+					<form method="post" class="form-horizontal">
+						<div class="form-group">
+							<label class="col-sm-2 required">用户名</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" name="login_name" value="">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 required">密码</label>
+							<div class="col-sm-6">
+								<input type="password" class="form-control" name="login_password" value="">
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" id="login_do">登 录</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	//高度满屏
+	window.onload = function(){
+		var h = document.documentElement.clientHeight; //可见区域高度
+		document.getElementById("content").style.height = h + "px";
+	}
+
+	//菜单内容
+	$(".menu_model").click(function(){
+		$("#menus_close").click();
+		$("#iframeContent").attr("src", $(this).attr("dataa-url"));
+	});
+
+	function goIframe(src){
+		$("#iframeContent").attr("src", src);
+	}
+
+	//修改密码
+	$("#user_edit").click(function(){
+		var errorNum = 0;
+		var name = $.trim($("input[name='name']").val());
+		var password = $.trim($("input[name='password']").val());
+		var password2 = $.trim($("input[name='password2']").val());
+
+		if (name == "") {
+			new $.zui.Messager('请输入管理员名称！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		if (password == "" || password !=  password2) {
+			new $.zui.Messager('新密码为空或不一致！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		if (errorNum == 0) {
+			var uid = <?php echo $admin['id']; ?>;
+			$.ajax({
+				type:"post",
+				url:"password",
+				dataType:"json",
+				data:{"id":uid,"name":name,"password":password,"password2":password2},
+				success:function(result){
+					if (result.code == 1) {
+						$("#close").click();
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+
+	//会话超时，重新登录
+	function relogin(){
+		$("input[name='login_name']").attr("value", "");
+		$("input[name='login_password']").attr("value", "");
+		$("#modal_login").modal('show');
+	}
+
+	//执行登录
+	$("#login_do").click(function(){
+		var errorNum = 0;
+		var login_name = $.trim($("input[name='login_name']").val());
+		if (login_name == "") {
+			new $.zui.Messager('请输入账号！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		var login_password = $.trim($("input[name='login_password']").val());
+		if (login_password == "") {
+			new $.zui.Messager('请输入密码！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		if (errorNum == 0) {
+			$.ajax({
+				type:"post",
+				url:"/sysadmin/login/relogin",
+				dataType:"json",
+				data:{"user_name":login_name, "user_pwd":login_password},
+				success:function(result){
+					if (result.code == 1) {
+						$('#modal_login').modal('hide');
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+
+	// 获取新消息
+	getNewMessageCount();
+	setInterval(getNewMessageCount, 30000);
+
+	function getNewMessageCount(){
+		<?php
+			if(isset($admin['menu'][14]['child'][71])){
+				echo "var is_messageCount = true;";
+			} else {
+				echo "var is_messageCount = false;";
+			}
+		?>
+		if(is_messageCount){
+			$.ajax({
+				type:"post",
+				url:"/sysadmin/message/messageCount",
+				dataType:"json",
+				data:{},
+				success:function(result){
+					if (result.code == 1) {
+						new $.zui.Messager('有新的消息，请注意查看！<a onClick="goIframe(\'/sysadmin/message/index\')">查看</a>', {type:'info', icon: 'bell', time: 30000}).show();
+					}
+				}
+			});
+		}
+	}
+</script>
+</body>
+</html>

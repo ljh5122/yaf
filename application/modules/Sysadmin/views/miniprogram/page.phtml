@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>访问页面统计</title>
+	<link rel="stylesheet" href="/public/zui/dist/css/zui.min.css">
+	<link rel="stylesheet" href="/public/zui/dist/lib/datatable/zui.datatable.min.css">
+	<link rel="stylesheet" href="/public/zui/dist/lib/datetimepicker/datetimepicker.min.css">
+	<script src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script src="/public/zui/dist/js/zui.min.js"></script>
+	<script src="/public/zui/dist/lib/datatable/zui.datatable.min.js"></script>
+	<script src="/public/zui/dist/lib/datetimepicker/datetimepicker.min.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/lib/chart/zui.chart.min.js"></script>
+</head>
+<body>
+<div class="panel-successcvcv" style="padding-top:37px;">
+	<div class="panel-heading navbar-fixed-top" style="background:#ddf4df;">
+		<span class="col-sm-1">页面访问统计</span>
+	</div>
+
+	<div class="panel-body">
+		<form method="post" class="form-horizontal" id="search">
+			<div class="form-group">
+				<div class="col-sm-2">
+					<select class="form-control input-sm" name="page">
+						<option value="all">所有页面</option>
+						<option value="pages/equipment/pages/list/list">装备列表</option>
+						<option value="pages/equipment/pages/eqdetails/eqdetails">装备详情</option>
+						<option value="pages/equipment/pages/eqdetails/eqdetails">装备详情</option>
+						<option value="pages/equipment/pages/disex/disex">装备男女分类</option>
+						<option value="pages/tabBar/index/index">小程序首页</option>
+						<option value="pages/index/pages/preview/preview">造型列表</option>
+						<option value="pages/index/pages/single/single">造型单品</option>
+						<option value="pages/tabBar/information/information">资讯首页</option>
+						<option value="pages/tabBar/my/my">个人中心</option>
+						<option value="pages/index/pages/video/video">视频详情</option>
+						<option value="pages/tabBar/music/music">音乐主页</option>
+						<option value="pages/information/pages/article/article">资讯详情</option>
+						<option value="pages/my/pages/model/model">个人收藏</option>
+						<option value="pages/index/pages/ride/ride">收藏单页详情</option>
+						<option value="pages/index/pages/introduce/introduce">造型图文介绍</option>
+						<option value="pages/my/pages/chat/chat">留言室</option>
+						<option value="pages/tabBar/authorization/authorization">登录页面</option>
+						<option value="pages/index/pages/shoes/shoes">搭配页面</option>
+					</select>
+				</div>
+				<div class="col-sm-2">
+					<input type="text" id="begin_date" name="begin_date" value="<?php echo date('Y-m-d', strtotime('-15 day')); ?>" class="form-control form-date input-sm" placeholder="选择一个日期：" readonly="readonly">
+				</div>
+				<div class="col-sm-2">
+					<input type="text" id="end_date" name="end_date" value="<?php echo $end_date; ?>" class="form-control form-date input-sm" placeholder="选择一个日期：" readonly="readonly">
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<div class="panel-body">
+		<div>页面访问次数趋势图</div>
+		<canvas id="myLineChart" width="1750" height="450"></canvas>
+	</div>
+
+	<div class="panel-body">
+		<div>页面列表</div>
+		<table class="table datatable"></table>
+	</div>
+</div>
+<script type="text/javascript">
+	// 选择时间和日期
+	$("#begin_date").datetimepicker({
+		language:  "zh-CN",
+		weekStart: 1,
+		todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		minView: 2,
+		forceParse: 0,
+		startDate: "2018-11-07",
+        endDate : new Date(),
+		format: "yyyy-mm-dd"
+	}).on("click", function(ev){
+        $("#begin_date").datetimepicker("setEndDate", $("#end_date").val());
+    });
+
+	// 选择时间和日期
+	$("#end_date").datetimepicker({
+		language:  "zh-CN",
+		weekStart: 1,
+		todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		minView: 2,
+		forceParse: 0,
+		startDate: "2018-11-07",
+        endDate : new Date(),
+		format: "yyyy-mm-dd"
+	}).on("click", function (ev) {
+        $("#end_date").datetimepicker("setStartDate", $("#begin_date").val());
+    });
+
+	$('table.datatable').datatable();
+	getData(); //初始化数据表格
+
+	// 修改页面
+	$(document).on("change", "select[name='page']", function(){
+		getData();
+	});
+
+	// 修改日期
+	$(".form-date").on('changeDate', function(ev){
+		getData();
+	});
+
+	// 趋势图初始化
+	var data = {
+		labels: [],
+		datasets: [{
+			// 数据集名称，会在图例中显示
+			label: "页面访问次数",
+			color: "red",
+			// 也可以不指定颜色主题，使用下面的值来分别应用颜色设置，这些值会覆盖color生成的主题颜色设置
+			fillColor: "#ffcccc", //填充颜色
+			strokeColor: "red", //边线颜色
+			pointColor: "red", //点颜色
+			pointStrokeColor: "#fff", //鼠标进入点时的颜色
+			pointHighlightFill: "#fff",
+			pointHighlightStroke: "rgba(220,220,220,1)",
+			data: [],
+		}]
+	};
+
+	var options = {
+		responsive: true,
+	};
+
+	var myLineChart = $("#myLineChart").lineChart(data, options);
+
+	//获取数据
+	function getData(){
+		$.ajax({
+			type:"post",
+			url:"/sysadmin/miniprogram/visitPage",
+			data:$("#search").serialize(),
+			dataType:"json",
+			success:function(result){
+				var cols = [
+					{width: 300, text: '页面路径',},
+					{width: 150, text: '页面名称',},
+					{width: 100, text: '访问次数', colClass: 'text-center'},
+					{width: 100, text: '访问人数', colClass: 'text-center'},
+					{width: 100, text: '次均停留时长', colClass: 'text-center'},
+					{width: 100, text: '进入页次数', colClass: 'text-center'},
+					{width: 100, text: '退出页次数', colClass: 'text-center'},
+					{width: 100, text: '转发次数', colClass: 'text-center'},
+					{width: 100, text: '转发人数', colClass: 'text-center'},
+				];
+
+				var rows = [];
+				var chart_labels = [];
+				var chart_data = [];
+				if(result.code == 0){
+					// 更新列表数据
+					$.each(result.data.table, function(index,obj){
+						obj.page_staytime_pv = (obj.page_staytime_pv/result.data.drange).toFixed(6);
+						rows.push({data: [obj.page_path, obj.page_name, obj.page_visit_pv, obj.page_visit_uv, obj.page_staytime_pv, obj.entrypage_pv, obj.exitpage_pv, obj.page_share_pv, obj.page_share_uv]});
+					});
+
+					// 更新趋势图数据
+					myLineChart.buildScale([])
+					myLineChart.datasets[0].points = [];
+					myLineChart.update();
+
+					$.each(result.data.chart, function(index,value){
+						myLineChart.addData([value], index);
+					});
+				}else{
+					new $.zui.Messager(result.msg , {type: 'warning',icon: 'warning-sign'}).show();
+				}
+				
+				$('table.datatable').datatable('load', {cols:cols, rows:rows});
+			}
+		});
+	}
+</script>
+</body>
+</html>

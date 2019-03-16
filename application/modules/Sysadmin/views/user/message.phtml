@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>消息</title>
+	<link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css">
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+</head>
+<body>
+<div class="panel-body">
+	<?php 
+	foreach($messageAry as $row){
+		if($row['sender'] == 0){
+			echo '<div class="comment">
+				<a href="###" class="avatar">
+					<i class="icon-user icon-2x"></i>
+				</a>
+				<div class="content">
+					<div class="pull-right text-muted">'.date('Y-m-d H:i:s', $row['utime']).'</div>
+					<div><a href="###"><strong>系统管理员</strong></a></div>	
+					<div class="text">'.$row['content'].'</div>
+				</div>
+			</div>';
+		}else{
+			echo '<div class="comment">
+				<a href="###" class="avatar">
+					<img src="'.$info['avatarUrl'].'">
+				</a>
+				<div class="content">
+					<div class="pull-right text-muted">'.date('Y-m-d H:i:s', $row['utime']).'</div>
+					<div><a href="###"><strong>'.$info['nickName'].'</strong></a></div>	
+					<div class="text">'.$row['content'].'</div>
+				</div>
+			</div>';
+		}
+	}
+
+	?>
+	<div class="reply-form" id="commentReplyForm1">
+		<form method="post" class="form-horizontal" id="message_form">
+			<input type="hidden" name="sendee" value="<?php echo $info['id']; ?>">
+			<div class="form-group">
+				<div class="col-sm-12">
+					<textarea class="form-control new-comment-text" rows="2" name="content" ></textarea>
+				</div>
+			</div>
+			<div class="container" style="margin-top: 50px;">
+				<button type="button" class="btn btn-primary" id="submit_do">发送</button>
+			</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+	//执行编辑菜单
+	$(document).on("click", "#submit_do", function(){
+		var errorNum = 0;
+		if (errorNum == 0) {
+			var data = $("#message_form").serialize();
+			$.ajax({
+				type:"post",
+				url:"message",
+				dataType:"json",
+				data:data,
+				success:function(result){
+					if (result.code == -1) {
+						window.top.relogin();
+					} else if (result.code == 1) {
+						window.parent.getData();
+						window.parent.modal_close();
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+</script>
+</body>
+</html>

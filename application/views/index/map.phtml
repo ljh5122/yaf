@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>添加场地</title>
+	<!-- <link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css"> -->
+	<link rel="stylesheet" type="text/css" href="/public/oss-callback/style.css"/>
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/lib/kindeditor/kindeditor-all.js"></script>
+	<style type="text/css">
+		body {
+		    font-family: "Helvetica Neue",Helvetica,Tahoma,Arial,'Microsoft Yahei','PingFang SC','Hiragino Sans GB','WenQuanYi Micro Hei',sans-serif;
+		    font-size: 13px;
+		    line-height: 1.53846154;
+		    color: #353535;
+		    background-color: #fff;
+		    margin: 0;
+		    display: block;
+		}
+		*, :after, :before {
+		    -webkit-box-sizing: border-box;
+		    -moz-box-sizing: border-box;
+		    box-sizing: border-box;
+		}
+
+		.panel-body {
+		    padding: 15px;
+		}
+
+		.form-horizontal .form-group {
+		    margin-right: -10px;
+		    margin-left: -10px;
+		}
+		.form-group {
+		    margin-bottom: 15px;
+		}
+
+		.form-horizontal .form-group>label {
+		    text-align: right;
+		}
+
+		horizontal .form-group>label, .form-horizontal .radio, .form-horizontal .radio-inline {
+		    padding-top: 6px;
+		    margin-top: 0;
+		    margin-bottom: 0;
+		}
+		.required {
+		    position: relative;
+		}
+
+		.col-sm-1 {
+		    width: 8.33333333%;
+		}
+
+		.col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9 {
+		    float: left;
+		}
+		.col, .col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-md-1, .col-md-10, .col-md-11, .col-md-12, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-xs-1, .col-xs-10, .col-xs-11, .col-xs-12, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9 {
+		    position: relative;
+		    min-height: 1px;
+		    padding-right: 10px;
+		    padding-left: 10px;
+		}
+		label {
+		    display: inline-block;
+		    margin-bottom: 5px;
+		    font-weight: 700;
+		}
+		.col-sm-6 {
+		    width: 50%;
+		}
+		.form-control {
+		    display: block;
+		    width: 100%;
+		    height: 32px;
+		    padding: 5px 8px;
+		    font-size: 13px;
+		    line-height: 1.53846154;
+		    color: #222;
+		    vertical-align: middle;
+		    background-color: #fff;
+		    border: 1px solid #ccc;
+		    border-radius: 4px;
+		    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+		    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+		    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+		    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+		    transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+		    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+		    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+		}
+
+		.form-horizontal .required:after {
+		    top: 5px;
+		    right: -1px;
+		}
+		.required:after {
+		    position: absolute;
+		    top: 0;
+		    right: -10px;
+		    display: inline-block;
+		    font-size: 17px;
+		    color: #ea644a;
+		    content: '*';
+		}
+		.col-sm-2 {
+		    width: 16.66666667%;
+		}
+		input, textarea, select, button {
+		    text-rendering: auto;
+		    color: initial;
+		    letter-spacing: normal;
+		    word-spacing: normal;
+		    text-transform: none;
+		    text-indent: 0px;
+		    text-shadow: none;
+		    display: inline-block;
+		    text-align: start;
+		    margin: 0em;
+		    font: 400 13.3333px Arial;
+		}
+		user agent stylesheet
+		input, textarea, select, button, meter, progress {
+		    -webkit-writing-mode: horizontal-tb !important;
+		}
+		::-webkit-scrollbar {
+		    width: 10px;
+		    height: 10px;
+		}
+		::-webkit-scrollbar-thumb {
+		    /* min-height: 28px; */
+		    padding-top: 100;
+		    background-color: rgba(0,0,0,.2);
+		    -webkit-background-clip: padding-box;
+		    background-clip: padding-box;
+		    border-radius: 5px;
+		    -webkit-box-shadow: inset 1px 1px 0 rgba(0,0,0,.1), inset 0 -1px 0 rgba(0,0,0,.07);
+		}
+		.btn-group-vertical>.btn-group-vertical:after, .btn-group-vertical>.btn-group-vertical:before, .btn-group-vertical>.btn-group:after, .btn-group-vertical>.btn-group:before, .btn-toolbar:after, .btn-toolbar:before, .cards:after, .cards:before, .clearfix:after, .clearfix:before, .container-fixed-md:after, .container-fixed-md:before, .container-fixed-sm:after, .container-fixed-sm:before, .container-fixed-xs:after, .container-fixed-xs:before, .container-fixed:after, .container-fixed:before, .container-fluid:after, .container-fluid:before, .container:after, .container:before, .dl-horizontal dd:after, .dl-horizontal dd:before, .form-horizontal .form-group:after, .form-horizontal .form-group:before, .modal-footer:after, .modal-footer:before, .modal-header:after, .modal-header:before, .nav:after, .nav:before, .navbar-collapse:after, .navbar-collapse:before, .navbar-header:after, .navbar-header:before, .navbar:after, .navbar:before, .pager-justify:after, .pager-justify:before, .pager-loose:after, .pager-loose:before, .panel-body:after, .panel-body:before, .row:after, .row:before {
+		    display: table;
+		    content: " ";
+		}
+
+		.btn-group-vertical>.btn-group-vertical:after, .btn-group-vertical>.btn-group:after, .btn-toolbar:after, .cards:after, .clearfix:after, .container-fixed-md:after, .container-fixed-sm:after, .container-fixed-xs:after, .container-fixed:after, .container-fluid:after, .container:after, .dl-horizontal dd:after, .form-horizontal .form-group:after, .modal-footer:after, .modal-header:after, .nav:after, .navbar-collapse:after, .navbar-header:after, .navbar:after, .pager-justify:after, .pager-loose:after, .panel-body:after, .row:after {
+		    clear: both;
+		}
+
+		::-webkit-scrollbar-thumb {
+		    min-height: 28px;
+		    padding-top: 100;
+		    background-color: rgba(0,0,0,.2);
+		    -webkit-background-clip: padding-box;
+		    background-clip: padding-box;
+		    border-radius: 5px;
+		    -webkit-box-shadow: inset 1px 1px 0 rgba(0,0,0,.1), inset 0 -1px 0 rgba(0,0,0,.07);
+		}
+		.form-horizontal .checkbox, .form-horizontal .checkbox-inline, .form-horizontal .form-group>label, .form-horizontal .radio, .form-horizontal .radio-inline {
+		    padding-top: 6px;
+		    margin-top: 0;
+		    margin-bottom: 0;
+		}
+
+	</style>
+</head>
+<body>
+<div class="panel-body">
+	<form action="add" method="post" class="form-horizontal" id="add_form">
+		<div class="form-group">
+			<label class="col-sm-1 required">标题</label>
+			<div class="col-sm-6">
+				<input type="text" name="title" value="" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">面积(平方)</label>
+			<div class="col-sm-2">
+				<input type="number" name="area" value="" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">容纳人数</label>
+			<div class="col-sm-2">
+				<input type="number" name="peoples" value="" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">营业时间</label>
+			<div class="col-sm-2">
+				<input type="text" name="open" value="" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">价格(元/人)</label>
+			<div class="col-sm-2">
+				<input type="number" name="price" value="" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">运动方式</label>
+			<div class="col-sm-2">
+				<input type="text" name="sport" value="" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1 required">联系电话</label>
+			<div class="col-sm-2">
+				<input type="text" name="tel" value="" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">缩略图</label>
+			<div class="col-sm-2">
+				<div id="ossfile">你的浏览器不支持flash,Silverlight或者HTML5！</div>
+				<div id="thumb" style="margin-bottom: 10px;"></div>
+				<div id="container">
+					<a id="selectfiles" href="javascript:void(0);" class='btn'>选择文件</a>
+					<a id="postfiles" href="javascript:void(0);" class='btn'>开始上传</a>
+				</div>
+			</div>
+		</div>
+
+		
+		<!-- <div class="form-group">
+			<label class="col-sm-1">地图</label>
+			<div class="col-sm-10">
+				<textarea id="mapSimple" name="map" class="form-control kindeditorSimple" style="width:40%;height:300px;"></textarea>
+			</div>
+			<script type="text/javascript">
+				var editor_bookRequirements;
+				KindEditor.ready(function(K) {
+					editor_bookRequirements = K.create('textarea[name="map"]', {
+						width: '40%',
+						height: '300px',
+						items : [
+					        'baidumap'
+					    ],
+						afterBlur: function(){
+							this.sync();
+						}
+					});
+				});
+			</script>
+		</div> -->
+
+		<div class="form-group">
+			<label class="col-sm-1">地图</label>
+			<div class="col-sm-6">
+				<div id="map" style="min-width:500px;min-height:450px;"></div>
+			</div>
+			<script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key=IVZBZ-BGJCU-2HEVD-26GNU-C5WV5-I7BIO"></script>
+			<script type="text/javascript">
+				window.onload = function(){
+			         var map = new qq.maps.Map(document.getElementById("map"), {
+			            center: new qq.maps.LatLng(39.916527,116.397128),      // 地图的中心地理坐标。
+			            zoom:8                                                 // 地图的中心地理坐标。
+			        });
+				}
+			</script>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1 required">内容</label>
+			<div class="col-sm-10">
+				<textarea id="contentSimple" name="content" class="form-control kindeditorSimple"></textarea>
+			</div>
+			<script type="text/javascript">
+				var editor_bookRequirements;
+				KindEditor.ready(function(K) {
+					editor_bookRequirements = K.create('textarea[name="content"]', {
+						width: '90%',
+						height: '300px',
+						items : [
+					        'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+					        'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+					        'insertunorderedlist', '|', 'emoticons', 'link'
+					    ],
+						afterBlur: function(){
+							this.sync();
+						}
+					});
+				});
+			</script>
+		</div>
+
+		<div class="container" style="margin-top: 50px;">
+			<button type="button" class="btn btn-primary" id="submit_do">提交</button>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="/public/oss-callback/lib/plupload-2.1.2/js/plupload.full.min.js"></script>
+<script type="text/javascript" src="/public/oss-callback/upload_thumb.js"></script>
+<script type="text/javascript">
+	//执行编辑菜单
+	$(document).on("click", "#submit_do", function(){
+		var errorNum = 0;
+
+		var title = $.trim($("input[name='title']").val());
+		if (title == "") {
+			new $.zui.Messager('请输入标题！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		var category = $.trim($("select[name='category']").val());
+		if (category == "") {
+			new $.zui.Messager('请选择所属分类！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		var tel = $.trim($("input[name='tel']").val());
+		if (tel == "") {
+			new $.zui.Messager('请输入联系电话！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		var province = $.trim($("select[name='province']").val());
+		if (province == "") {
+			new $.zui.Messager('请选择省份！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		var city = $.trim($("select[name='city']").val());
+		if (city == "") {
+			new $.zui.Messager('请选择城市！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		var address = $.trim($("input[name='address']").val());
+		if (address == "") {
+			new $.zui.Messager('请输入地址！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		var content = $.trim($("textarea[name='content']").val());
+		if (content == "") {
+			new $.zui.Messager('请输入内容！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		if (errorNum == 0) {
+			var data = $("#add_form").serialize();
+			$.ajax({
+				type:"post",
+				url:"add",
+				dataType:"json",
+				data:data,
+				success:function(result){
+					if (result.code == 1) {
+						window.parent.getData();
+						window.parent.modal_close();
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+
+	//获取省份下级列表
+	$(document).on("change", "#province", function(){
+		var pid = $(this).val();
+		$.ajax({
+			type:"post",
+			url:"/Index/area/getList/pid/" + pid,
+			dataType:"json",
+			success:function(result){
+				if (result) {
+					var content = '<option value="">请选择城市</option>';
+					$.each(result, function(index, obj){
+						content += '<option value="'+ obj.id +'">'+ obj.name +'</option>';
+					});
+
+					$("#city").html(content);
+				}
+			}
+		});
+	});
+</script>
+</body>
+</html>

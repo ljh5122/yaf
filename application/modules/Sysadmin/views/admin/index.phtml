@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>管理员</title>
+	<link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css">
+	<link rel="stylesheet" href="/public/zui/dist/lib/datatable/zui.datatable.min.css">
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+	<script src="/public/zui/dist/lib/datatable/zui.datatable.min.js"></script>
+	<script src="/public/common/common.js"></script>
+</head>
+<body>
+<div class="panel-successcvcv" style="padding-top:37px;">
+	<div class="panel-heading navbar-fixed-top" style="background:#ddf4df;">
+		<span class="col-sm-1">管理员管理</span>
+		<?php
+			if(isset($child_menu[31])) echo '<button class="btn btn-sm menu_add" data-role="">新增</button>';
+			if(isset($child_menu[32])) echo '<button class="btn btn-sm menu_batch" type="button" data-type="using">启用</button>';
+			if(isset($child_menu[33])) echo '<button class="btn btn-sm menu_batch" type="button" data-type="forbid">禁用</button>';
+			if(isset($child_menu[34])) echo '<button class="btn btn-sm menu_batch" type="button" data-type="delete">删除</button>';
+		?>
+	</div>
+	<div class="panel-body">
+		<form method="post" class="form-horizontal" id="search">
+			<div class="form-group">
+				<div class="col-sm-2">
+					<input type="text" class="form-control input-sm" name="name" placeholder="用户名">
+				</div>
+				<div class="col-sm-2">
+					<select class="form-control input-sm" name="status">
+						<option value="">所有状态</option>
+						<option value="1">启用</option>
+						<option value="2">禁用</option>
+					</select>
+				</div>
+				<button class="btn btn-sm" type="button" id="menu_search"><i class="icon icon-search"></i></button>
+			</div>
+		</form>
+
+		<form id="data_list" method="post">
+			<table class="table datatable"></table>
+		</form>
+
+		<div id="pageContent"></div>
+		<script type="text/javascript">
+			$('#pageContent').on('click', '.pager > li > a', function() {
+				var down = $(this).html();
+				var page_code = 1;
+				if (!isNaN(down)) {
+					page_code = down;
+				}
+
+				getData(page_code);
+			});
+		</script>
+
+	</div>
+
+	<!-- 编辑对话框HTML -->
+	<div class="modal fade" id="modal_edit">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+					<h4 class="modal-title">编辑管理员</h4>
+				</div>
+				<div class="modal-body container">
+					<form method="post" class="form-horizontal">
+						<input type="hidden" name="id" value="">
+						<div class="form-group">
+							<label class="col-sm-2">用户角色</label>
+							<div class="col-sm-6">
+								<select class="form-control" name="role">
+									<option value="">请选择角色</option>
+									<?php
+										foreach ($role as $value) {
+											echo '<option value="'.$value['id'].'">'.$value['name'].'</option>';
+										}
+									?>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 required">用户名</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" name="name">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2">昵称</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" name="nickName">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 required">密码</label>
+							<div class="col-sm-6">
+								<input type="password" class="form-control" name="password">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 required">确认密码</label>
+							<div class="col-sm-6">
+								<input type="password" class="form-control" name="password2">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2">状态</label>
+							<div class="col-sm-6">
+								<label class="radio-inline"><input type="radio" name="status" value="1">启用</label>
+								<label class="radio-inline"><input type="radio" name="status" value="2">禁用</label>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal" id="close">关闭</button>
+					<button class="btn btn-primary" id="submit_do">保存</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	//初始化数据表格
+	$('table.datatable').datatable({checkable: true, checkboxName:'id[]'});
+	getData(1);
+
+	$(document).on("click", "#menu_search", function(){
+		getData(1);
+	})
+
+	//获取数据
+	function getData(page_code = 1){
+		$.ajax({
+			type:"post",
+			url:"index/page_code/" + page_code,
+			data:$("#search").serialize(),
+			dataType:"json",
+			success:function(result){
+				var cols = [
+					{width: 100, text: '#', colClass: 'text-center'},
+					{width: 150, text: '用户名'},
+					{width: 150, text: '昵称'},
+					{width: 150, text: '角色'},
+					{width: 150, text: '编辑者'},
+					{width: 150, text: '编辑时间', colClass: 'text-center'},
+					{width: 100, text: '状态', colClass: 'text-center'},
+					{width: 100, text: '操作', colClass: 'text-center'}
+				];
+				var rows = [];
+				var menus = "";
+				$.each(result.list, function(index,obj){
+					menus = '<a href="#" class="menu_edit" data-role="'+obj.role+'"><i class="icon-edit"></i></a>';
+					if(obj.nickName == null){ obj.nickName = ""; }
+					obj.status = obj.status == 1 ? "启用" : "禁用";
+					if(obj.role == null){ obj.role = ""; }
+					utime = getMyDate(parseInt(obj.utime + '000'));
+					rows.push({checked: false, id:obj.id, data: [obj.id, obj.name, obj.nickName, obj.roleName, obj.updater, utime, obj.status, menus]});
+				});
+				$('table.datatable').datatable('load', {cols:cols, rows:rows});
+				$("#pageContent").html(result.page);
+			}
+		});
+	}
+
+	//添加角色
+	$(document).on("click", ".menu_add", function(){
+		$("#modal_edit").find("input[type='text']").val("");
+		$("#modal_edit").find("input[type='hidden']").val("");
+		$("#modal_edit").find("input[type='password']").val("");
+		$("#modal_edit").find("select[name='role']").val("");
+		$("#modal_edit").modal('show');
+	});
+
+	//编辑角色
+	$(document).on("click", ".menu_edit", function(){
+		var role = $(this).data('role');
+		var id = $(this).parent().siblings("td:eq(1)").html();
+		var name = $(this).parent().siblings("td:eq(2)").html();
+		var nickName = $(this).parent().siblings("td:eq(3)").html();
+		
+		$("#modal_edit").find("input[type='password']").val("");
+		$("#modal_edit").find("input[name='id']").val(id);
+		$("#modal_edit").find("select[name='role']").val(role);
+		$("#modal_edit").find("input[name='name']").val(name);
+		$("#modal_edit").find("input[name='nickName']").val(nickName);
+		$("#modal_edit").modal('show');
+	});
+
+	//执行编辑菜单
+	$(document).on("click", "#submit_do", function(){
+		var errorNum = 0;
+
+		if ($.trim($("#modal_edit").find("select[name='role']").val()) == "") {
+			new $.zui.Messager('请选择用户角色！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		if ($.trim($("#modal_edit").find("input[name='name']").val()) == "") {
+			new $.zui.Messager('请输入用户名！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		if ($.trim($("#modal_edit").find("input[name='password']").val()) != "") {
+			if ($.trim($("#modal_edit").find("input[name='password2']").val()) == "") {
+				new $.zui.Messager('请输入确认密码！', {type: 'warning',icon: 'warning-sign'}).show();
+				errorNum += 1;
+			}
+		}
+
+		if (errorNum == 0) {
+			if ($.trim($("#modal_edit").find("input[name='id']").val()) == "") {
+				var url = "add";
+			}else{
+				var url = "edit";
+			}
+
+			$.ajax({
+				type: "post",
+				url: url,
+				dataType: "json",
+				data: $("#modal_edit").find("form").serialize(),
+				success: function(result){
+					if (result.code == -1) {
+						window.top.relogin();
+					} else if (result.code == 1) {
+						getData();
+						$('#modal_edit').modal('hide');
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+
+	//批量操作
+	$(document).on("click", ".menu_batch", function(){
+		var form = $("#data_list").serialize();
+		var id = $("input[name='id[]']:checked").val();
+		if (!id) {
+			new $.zui.Messager('请选择操作项！', {type: 'warning',icon: 'warning-sign'}).show();
+		}else{
+			var type = $(this).data('type');
+			$.ajax({
+				type:"post",
+				url:"batch/type/" + type,
+				dataType:"json",
+				data: form,
+				success:function(result){
+					if (result.code == -1) {
+						window.top.relogin();
+					} else if (result.code == 1) {
+						getData();
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+</script>
+</body>
+</html>

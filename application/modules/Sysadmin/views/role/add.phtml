@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>添加角色</title>
+	<link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css">
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+</head>
+<body>
+<div class="panel-body">
+	<form action="add" method="post" class="form-horizontal" id="role_form">
+		<div class="form-group">
+			<label class="col-sm-1 required">角色名称</label>
+			<div class="col-sm-6">
+				<input type="text" name="name" value="" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">权限设置</label>
+			<div class="col-sm-11">
+				<ul class="nav">
+				<?php
+					foreach ($menuAry as $one) {
+						echo '<li order="'.$one['id'].'" data-pid="0">
+						<label><input type="checkbox" name="menu[]" value="'.$one['id'].'" >'.$one['name'].'</label>
+						<ul class="nav" style="margin-left: 30px;">';
+						foreach ($one['child'] as $two) {
+							echo '<li order="'.$two['id'].'" data-pid="'.$one['id'].'">
+								<label><input type="checkbox" name="menu[]" value="'.$two['id'].'" >'.$two['name'].'</label>
+								<ul class="nav" style="margin-left: 30px;">';
+								foreach ($two['child'] as $three) {
+									echo '<li class="col" order="'.$three['id'].'" data-pid="'.$two['id'].'">
+										<label><input type="checkbox" name="menu[]" value="'.$three['id'].'" >'.$three['name'].'</label>
+									</li>';
+								}
+							echo '</ul></li>';
+						}
+						echo '</ul></li>';
+					}
+				?>
+				</ul>
+			</div>
+		</div>
+		<div class="container" style="margin-top: 50px;">
+			<button type="button" class="btn btn-primary" id="submit_do">提交</button>
+		</div>
+	</form>
+</div>
+<script type="text/javascript">
+	//菜单选中与取消
+	$(document).on("click", "input[type='checkbox']", function(){
+		var obj = $(this).parent().parent("li");
+		if($(this).is(':checked')){
+			var pid = obj.data("pid");
+			var top = $(obj).parent().parent("li").data("pid");
+			$("li[order="+pid+"]").children().children("input").prop("checked", true);
+			$("li[order="+top+"]").children().children("input").prop("checked", true);
+		}else{
+			$(obj).find("input").prop("checked", false);
+		}
+	})
+
+
+	//执行编辑菜单
+	$(document).on("click", "#submit_do", function(){
+		var errorNum = 0;
+		var name = $.trim($("input[name='name']").val());
+		if (name == "") {
+			new $.zui.Messager('请输入角色名称！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		if (errorNum == 0) {
+			var data = $("#role_form").serialize();
+			$.ajax({
+				type:"post",
+				url:"add",
+				dataType:"json",
+				data:data,
+				success:function(result){
+					if (result.code == -1) {
+						window.top.relogin();
+					} else if (result.code == 1){
+						window.parent.getData();
+						window.parent.modal_close();
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+</script>
+</body>
+</html>

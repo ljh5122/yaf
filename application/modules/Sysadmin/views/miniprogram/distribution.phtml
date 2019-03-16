@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>访问分布统计</title>
+	<link rel="stylesheet" href="/public/zui/dist/css/zui.min.css">
+	<link rel="stylesheet" href="/public/zui/dist/lib/datetimepicker/datetimepicker.min.css">
+	<script src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script src="/public/zui/dist/js/zui.min.js"></script>
+	<script src="/public/zui/dist/lib/datetimepicker/datetimepicker.min.js"></script>
+	<link rel="stylesheet" href="/public/zui/layui/css/layui.css">
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script src="/public/zui/layui/layui.js"></script>
+	<script src="https://cdn.bootcss.com/echarts/4.2.0-rc.2/echarts.min.js"></script>
+</head>
+<body>
+<div class="panel-successcvcv" style="padding-top:37px;">
+	<div class="panel-heading navbar-fixed-top" style="background:#ddf4df;">
+		<span class="col-sm-1">访问分布统计</span>
+	</div>
+	<form class="layui-form">
+		  <div class="layui-row">
+		    <div class="layui-col-md2" style="text-align: right;"> 
+		             <label class="layui-form-label" style="width:100%;">选择时间</label>
+	        </div>
+		    <div class="layui-col-md3">
+			    <div class="layui-inline">
+			      <div class="layui-input-inline">
+			        <input type="text" class="layui-input" id="test1" placeholder="开始时间">
+			      </div>
+			    </div>
+		    </div>
+		    <div class="layui-col-md3">
+			    <div class="layui-inline">
+			      <div class="layui-input-inline">
+			        <input type="text" class="layui-input" id="test2" placeholder="结束时间">
+			      </div>
+			    </div>
+		    </div>
+		  </div>
+	</form>
+	<div class="panel-body">
+		<div class="col-sm-12" id="access_source_session_cnt" style="height:500px;margin:auto;"></div>
+	</div>
+</div>
+<script type="text/javascript">
+	// 客户端分布图
+	var dom = document.getElementById("access_source_session_cnt");
+	var myChart = echarts.init(dom);
+	var app = {};
+	option = null;
+	app.title = '坐标轴刻度与标签对齐';
+// 对应的key
+var keyVlaue={'1':'小程序历史列表','2':'搜索','3':'会话','4':'扫一扫二维码','5':'公众号主页','6':'聊天顶部','7':'系统桌面','8':'小程序主页',
+	          '9':'附近的小程序','11':'模板消息','13':'公众号菜单','14':'APP分享','15':'支付完成页','16':'长按识别二维码','17':'相册选取二维码',
+			  '18':'公众号文章','19':'钱包','20':'卡包','21':'小程序内卡券','22':'其他小程序','23':'其他小程序返回','24':'卡券适用门店列表',
+			  '25':'搜索框快捷入口','26':'小程序客服消息','27':'公众号下发','29':'任务栏-最近使用','30':'长按小程序菜单圆点','31':'连wifi成功页','32':'城市服务	',
+			  '33':'微信广告','34':'其他移动应用','35':'发现入口-我的小程序','36':'任务栏-我的小程序','10':'其他',}
+var daytime=86400000;
+var echaname=['打开次数'];
+var time_out=parseInt((new Date()).getTime())-daytime;  //终止时间
+var time_in=parseInt(time_out)-(daytime*7) //默认起始时间
+var max_out=fmtDate(time_out)
+var min_out=new Date("2018-11-07 00:00:00").getTime()+(daytime*7);
+var begin_date=ajaxDate(time_in),end_date=ajaxDate(time_out),types="session_cnt";
+layui.use('form', ()=>{
+  var form = layui.form, layer = layui.layer;
+		form.on('select(city)',(data)=>{
+			types=""
+			demoname[0]=data.value
+		    analysis.map((value,index)=>{
+		    	echaname=[];
+		        if(value.name==data.value){
+		           echaname[0]=value.name
+                   types=value.api
+                   Lwxajax(types,begin_date,end_date,echaname)
+		        }
+			})
+		})
+});	
+Lwxajax(types,begin_date,end_date,echaname)
+layui.use('laydate',()=>{
+		  var laydate = layui.laydate;
+		    //自定义格式
+			  laydate.render({
+			    elem: '#test1'
+			    ,format: 'yyyy年MM月dd日'
+			    ,value: new Date(time_in)
+			    ,min: '2018-11-07'
+			    ,max:time_in
+			    ,done:(value, date)=>{ //监听日期被切换
+				   begin_date=dateSplict(value)
+				   Lwxajax(types,begin_date,end_date,echaname)
+				 }
+			  });
+			  laydate.render({
+			    elem: '#test2'
+			    ,format: 'yyyy年MM月dd日'
+			    ,value:new Date(time_out)
+			    ,max:max_out
+			    ,min:min_out
+			    ,done:function(value, date){ //监听日期被切换
+			    	end_date=dateSplict(value)
+				    Lwxajax(types,begin_date,end_date,echaname)
+				 }
+			  });
+})	
+function Lwxajax(types,begin_date,end_date,echaname){
+	console.log('执行')
+	var xAxisData=[],seriesData=[];
+   $.ajax({
+   	  url:'/sysadmin/miniprogram/visitDistribution',
+   	  data:{
+   	  	    begin_date:begin_date,
+   	  	    end_date:end_date
+   	  	   },
+   	  type:'POST',
+   	  success:(res)=>{
+	    var data=res.data.access_source_session_cnt
+		console.log(data);
+		for(var key in  data){
+			xAxisData.push(keyVlaue[key]) 
+			seriesData.push(data[key])			
+		}
+		console.log(seriesData)
+		echarZhu(xAxisData,seriesData)
+   	  }
+   })
+}
+function dateSplict(str){
+      return str.split("年").join("").split("月").join("").split("日").join("")
+}
+function fmtDate(obj){
+    var date =  new Date(obj);
+    var y = 1900+date.getYear();
+    var m = "0"+(date.getMonth()+1);
+    var d = "0"+date.getDate();
+    return y+"-"+m.substring(m.length-2,m.length)+"-"+d.substring(d.length-2,d.length);
+}	
+function ajaxDate(obj){
+    var date =  new Date(obj);
+    var y = 1900+date.getYear();
+    var m = "0"+(date.getMonth()+1);
+    var d = "0"+date.getDate();
+    return y+m.substring(m.length-2,m.length)+d.substring(d.length-2,d.length);
+}
+function echarZhu(xAxis,series){
+			var option = {
+				color: ['#3398DB'],
+				tooltip : {
+					trigger: 'axis',
+					axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+						type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+					}
+				},
+				grid: {
+					left: '3%',
+					right: '4%',
+					bottom: '3%',
+					containLabel: true
+				},
+				xAxis : [
+					{
+						type : 'category',
+						data : xAxis,
+						axisTick: {
+							alignWithLabel: true
+						}
+					}
+				],
+				yAxis : [
+					{
+						type : 'value'
+					}
+				],
+				series : [
+					{
+						name:'直接访问',
+						type:'bar',
+						barWidth: '60%',
+						data:series
+					}
+				]
+			};
+
+		if (option && typeof option === "object") {
+			myChart.setOption(option, true);
+		}
+}
+</script>
+</body>
+</html>

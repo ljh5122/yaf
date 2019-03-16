@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>后台登录</title>
+    <link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css">
+    <link rel="stylesheet" type="text/css" href="/public/admin/css/style.css" />
+    <script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+    <script src="/public/admin/js/Particleground.js"></script>
+    <style>
+        body{height:100%;background:#16a085;overflow:hidden;}
+        canvas{z-index:-1;position:absolute;}
+    </style>
+    <script>
+        $(document).ready(function() {
+            //粒子背景特效
+            $('body').particleground({
+                dotColor: '#5cbdaa',
+                lineColor: '#5cbdaa'
+            });
+
+            //测试提交，对接程序删除即可
+            $(".btn").click(function(){
+                var user_name = $.trim($("input[name='user_name']").val());
+                var user_pwd = $("input[name='user_pwd']").val();
+                var code = $("input[name='code']").val();
+                if (user_name == "" || user_pwd == "" || code =="") {
+                    new $.zui.Messager('信息填写不完整！', {type:'warning',icon:'warning-sign'}).show();
+                }else{
+                    $.ajax({
+                        type:"post",
+                        url:"/sysadmin/login/login",
+                        dataType:"json",
+                        data:{"user_name":user_name,"user_pwd":user_pwd,"captcha":code},
+                        success:function(result){
+                            if (result.code == 1) {
+                                location.href="/sysadmin/index/index";
+                            } else {
+                                new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        function changeimg(){
+            document.getElementById('SeedImg').src='/sysadmin/login/captcha/d/'+Math.random();
+        }
+    </script>
+</head>
+<body>
+
+<dl class="admin_login container">
+    <dt>
+        <strong>站点后台管理系统</strong>
+        <em>Management System</em>
+    </dt>
+    <dd class="user_icon">
+        <input type="text" placeholder="账号" name="user_name" class="login_txtbx"/>
+    </dd>
+    <dd class="pwd_icon">
+        <input type="password" placeholder="密码" name="user_pwd" class="login_txtbx"/>
+    </dd>
+    <dd class="val_icon">
+        <div class="checkcode">
+            <input type="text" placeholder="验证码" name="code" maxlength="4" class="login_txtbx">
+        </div>
+        <img src="/sysadmin/login/captcha" id="SeedImg" onclick="changeimg()" class="ver_btn"/>
+    </dd>
+    <dd>
+        <button class="btn submit_btn show-messager" type="button">立即登陆</button>
+    </dd>
+    <dd>
+        <p>© 2015-2016 西安陆境科技 版权所有</p>
+        <p>陕B2-20080224-1</p>
+    </dd>
+</dl>
+
+</body>
+</html>

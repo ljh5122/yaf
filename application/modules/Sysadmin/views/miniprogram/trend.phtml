@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+	<title>后台管理</title>
+	<link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css">
+	<link rel="stylesheet" href="/public/zui/layui/css/layui.css">
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+	<script src="/public/zui/layui/layui.js"></script>
+	<script src="https://cdn.bootcss.com/echarts/4.2.0-rc.2/echarts.min.js"></script>
+	<style>
+       .layui-input-block{
+       	   margin-left: 50px;
+		   margin-top: 15px;
+       }
+       .layui-form-label{
+       	 width:150px;
+       }
+       .layui-inline{
+       	 margin-top:15px;
+       }
+	</style>
+</head>
+<body>
+<div class="panel panel-successcvcv" style="padding-top:37px;">
+	<div class="panel-heading navbar-fixed-top" style="background:#ddf4df;">系统主页</div>
+	<div class="L-content">
+	 <form class="layui-form">
+		  <div class="layui-row" style="margin-bottom:50px;">
+		    <div class="layui-col-md4 layui-col-sm12">
+		    </div>
+		    <div class="layui-col-md2" style="text-align: right;"> 
+			    <div class="layui-inline">
+		             <label class="layui-form-label">选择时间</label>
+				</div>
+	        </div>
+		    <div class="layui-col-md2">
+			    <div class="layui-inline">
+			      <div class="layui-input-inline">
+			        <input type="text" class="layui-input" id="test1" placeholder="开始时间">
+			      </div>
+			    </div>
+		    </div>
+		    <div class="layui-col-md2">
+			    <div class="layui-inline">
+			      <div class="layui-input-inline">
+			        <input type="text" class="layui-input" id="test2" placeholder="结束时间">
+			      </div>
+			    </div>
+		    </div>
+		  </div>
+	 </form>
+	 <div class="layui-row" style="margin-bottom:50px;">
+        <div class="layui-col-md6 layui-col-sm12">
+          <div id="container" style="height:350px;width:90%;margin:auto"></div>
+        </div>
+        <div class="layui-col-md6 layui-col-sm12">
+          <div id="container2" style="height:350px;width:90%;margin:auto"></div>
+        </div>
+	 </div>
+	 <div class="layui-row">
+        <div class="layui-col-md6 layui-col-sm12">
+          <div id="container3" style="height:350px;width:90%;margin:auto"></div>
+        </div>
+	 </div>
+	</div> 
+</div>
+
+ 
+<script>
+$(function(){
+	// var analysis=[{'id':'1','name':'打开次数','api':'session_cnt'},
+	//               {'id':'2','name':'转发次数','api':'share_uv'},
+	//               {'id':'3','name':'转发人数','api':'share_pv'},
+	//               {'id':'4','name':'访问次数','api':'visit_pv'},
+	//               {'id':'5','name':'访问人数','api':'visit_uv'},
+	//               {'id':'6','name':'新用户数','api':'visit_uv_new'},
+	//               {'id':'7','name':'人均停留时长 (单位：秒)','api':'stay_time_uv'},
+	//               {'id':'8','name':'次均停留时长 (单位：秒)','api':'stay_time_session'},
+	//               {'id':'9','name':'平均访问深度 (浮点型)','api':'visit_depth'}
+	//               ],
+
+//Demo
+var demoname=['打开次数']
+var daytime=86400000;
+var time_out=parseInt((new Date()).getTime())-daytime;  //终止时间
+var time_in=parseInt(time_out)-(daytime*7) //默认起始时间
+var max_out=fmtDate(time_out)
+var min_out=new Date("2018-11-07 00:00:00").getTime()+(daytime*7);
+var begin_date=ajaxDate(time_in),end_date=ajaxDate(time_out),types="session_cnt";
+layui.use('form', ()=>{
+  var form = layui.form, layer = layui.layer;
+});
+layui.use('laydate',()=>{
+		  var laydate = layui.laydate;
+		    //自定义格式
+			  laydate.render({
+			    elem: '#test1'
+			    ,format: 'yyyy年MM月dd日'
+			    ,value: new Date(time_in)
+			    ,min: '2018-11-07'
+			    ,max:time_in
+			    ,done:(value, date)=>{ //监听日期被切换
+				   begin_date=dateSplict(value)
+				   Lwxajax(begin_date,end_date)
+				 }
+			  });
+			  laydate.render({
+			    elem: '#test2'
+			    ,format: 'yyyy年MM月dd日'
+			    ,value:new Date(time_out)
+			    ,max:max_out
+			    ,min:min_out
+			    ,done:function(value, date){ //监听日期被切换
+			    	end_date=dateSplict(value)
+				    Lwxajax(begin_date,end_date)
+				 }
+			  });
+})
+Lwxajax(begin_date,end_date)
+})
+var session_cnt=[],share_pv=[],share_uv=[],visit_pv=[],visit_uv=[],visit_uv_new=[],timeY=[],stay_time_uv=[],stay_time_session=[],series=[],series2=[],series3=[],
+    visit_depth=[];
+var echaname=['打开次数','转发次数','转发人数','访问次数','访问人数','新用户数']
+var echaname2=['人均停留时长','次均停留时长']
+var echaname3=['平均访问深度']
+// 请求数据函数
+function Lwxajax(begin_date,end_date){
+   $.ajax({
+   	  url:'/sysadmin/miniprogram/daily',
+   	  data:{
+   	  	    begin_date:begin_date,
+   	  	    end_date:end_date
+   	  	   },
+   	  type:'POST',
+   	  success:(res)=>{
+   	  	var list=[],list2=[],list3=[];
+   	  	session_cnt=[];share_pv=[];share_uv=[];visit_pv=[];visit_uv=[];visit_uv_new=[];timeY=[];stay_time_uv=[];visit_depth=[];stay_time_session=[];series=[];series2=[];series3=[];
+        for(var key in res.data){
+        	timeY.push(key)
+        	session_cnt.push(res.data[key].chart1.session_cnt)
+        	share_pv.push(res.data[key].chart1.share_pv)
+        	share_uv.push(res.data[key].chart1.share_uv)
+        	visit_pv.push(res.data[key].chart1.visit_pv)
+        	visit_uv.push(res.data[key].chart1.visit_uv)
+        	visit_uv_new.push(res.data[key].chart1.visit_uv_new)
+
+        	stay_time_uv.push(res.data[key].chart2.stay_time_uv)
+        	stay_time_session.push(res.data[key].chart2.stay_time_session)
+
+        	visit_depth.push(res.data[key].chart3.visit_depth)
+        }
+        list.push(session_cnt)
+        list.push(share_pv)
+        list.push(share_uv)
+        list.push(visit_pv)
+        list.push(visit_uv)
+        list.push(visit_uv_new)
+        list2.push(stay_time_uv)
+        list2.push(stay_time_session)
+        list3.push(visit_depth)
+        list.map((value,index)=>{
+           series.push({
+		            name:echaname[index],
+		            type:'line',
+		            stack: '总量',
+		            itemStyle: {
+					normal: {
+						    // color:'green',
+							lineStyle: {
+								width:3, //调整 线条的宽度  5已经很宽啦
+	                            // color : 'green' //线条颜色
+							}
+						}
+					},
+		            data:value
+		        }) 
+        })
+        list2.map((value,index)=>{
+           series2.push({
+		            name:echaname2[index],
+		            type:'line',
+		            stack: '总量',
+		            itemStyle: {
+					normal: {
+							lineStyle: {
+								width:3, //调整 线条的宽度  5已经很宽啦
+							}
+						}
+					},
+		            data:value
+		        }) 
+        })
+        list3.map((value,index)=>{
+           series3.push({
+		            name:echaname3[index],
+		            type:'line',
+		            stack: '总量',
+		            itemStyle: {
+					normal: {
+							lineStyle: {
+								width:3, //调整 线条的宽度  5已经很宽啦
+							}
+						}
+					},
+		            data:value
+		        }) 
+        })
+        wx_echa(series,timeY,echaname,series2,echaname2,series3)
+   	  }
+   })
+}
+//处理发送时间
+function dateSplict(str){
+      return str.split("年").join("").split("月").join("").split("日").join("")
+}
+function fmtDate(obj){
+    var date =  new Date(obj);
+    var y = 1900+date.getYear();
+    var m = "0"+(date.getMonth()+1);
+    var d = "0"+date.getDate();
+    return y+"-"+m.substring(m.length-2,m.length)+"-"+d.substring(d.length-2,d.length);
+}
+function ajaxDate(obj){
+    var date =  new Date(obj);
+    var y = 1900+date.getYear();
+    var m = "0"+(date.getMonth()+1);
+    var d = "0"+date.getDate();
+    return y+m.substring(m.length-2,m.length)+d.substring(d.length-2,d.length);
+}
+function wx_echa(series,timeY,echaname,series2,echaname2,series3){
+	var dom = document.getElementById("container"),dom2 = document.getElementById("container2"),dom3 = document.getElementById("container3");
+	var myChart = echarts.init(dom), myChart2 = echarts.init(dom2),myChart3 = echarts.init(dom3);
+	var app = {};
+	option = null;option2 = null;option3 = null;
+	option = {
+		    title: {
+		        text: '访问分析'
+		    },
+		    tooltip: {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:echaname,
+		        textStyle:{//图例文字的样式
+				 // color:'green' 
+			    }
+		    },
+		    grid: {
+		        left: '3%',
+		        right: '4%',
+		        bottom: '3%',
+		        containLabel: true
+		    },
+		    toolbox: {
+		        feature: {
+		            saveAsImage: {}
+		        }
+		    },
+		    xAxis: {
+		        type: 'category',
+		        boundaryGap: false,
+		        data:timeY,
+		    },
+		    yAxis: {
+		        type: 'value'
+		    },
+		    series: series
+		};
+	option2 = {
+		    title: {
+		        text: '时长分析'
+		    },
+		    tooltip: {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:echaname2,
+		        textStyle:{//图例文字的样式
+				 // color:'green' 
+			    }
+		    },
+		    grid: {
+		        left: '3%',
+		        right: '4%',
+		        bottom: '3%',
+		        containLabel: true
+		    },
+		    toolbox: {
+		        feature: {
+		            saveAsImage: {}
+		        }
+		    },
+		    xAxis: {
+		        type: 'category',
+		        boundaryGap: false,
+		        data:timeY,
+		    },
+		    yAxis: {
+		        type: 'value'
+		    },
+		    series: series2
+		};	
+	option3 = {
+		    title: {
+		        text: '访问深度分析'
+		    },
+		    tooltip: {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:['平均访问深度 (浮点型)'],
+		        textStyle:{//图例文字的样式
+				 // color:'green' 
+			    }
+		    },
+		    grid: {
+		        left: '3%',
+		        right: '4%',
+		        bottom: '3%',
+		        containLabel: true
+		    },
+		    toolbox: {
+		        feature: {
+		            saveAsImage: {}
+		        }
+		    },
+		    xAxis: {
+		        type: 'category',
+		        boundaryGap: false,
+		        data:timeY,
+		    },
+		    yAxis: {
+		        type: 'value'
+		    },
+		    series: series3
+		};		
+		if (option && typeof option === "object") {
+		    myChart.setOption(option, true);
+		}
+		if (option2 && typeof option2 === "object") {
+		    myChart2.setOption(option2, true);
+		}
+		if (option3 && typeof option3 === "object") {
+		    myChart3.setOption(option3, true);
+		}
+}
+</script>
+</body>
+</html>

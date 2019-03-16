@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>添加广告</title>
+	<link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css">
+	<link rel="stylesheet" type="text/css" href="/public/zui/dist/lib/kindeditor/themes/default/default.css">
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/lib/kindeditor/kindeditor-all.js"></script>
+</head>
+<body>
+<div class="panel-body">
+	<form action="add" method="post" class="form-horizontal" id="add_form">
+		<div class="form-group">
+			<label class="col-sm-1 required">标识</label>
+			<div class="col-sm-8">
+				<input type="text" name="type" class="form-control">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-1 required">标题</label>
+			<div class="col-sm-8">
+				<input type="text" name="title" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">链接</label>
+			<div class="col-sm-8">
+				<input type="text" name="link" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">备注</label>
+			<div class="col-sm-8">
+				<textarea name="remark" class="form-control kindeditor"></textarea>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-1">相册</label>
+			<div class="col-sm-10">
+				<input type="button" id="image2" value="选择图片" />(375 X 321)
+				<div id="J_imageView" style="margin-top:10px;"></div>
+			</div>
+			<script>
+				KindEditor.ready(function(K) {
+					var editor = K.editor({
+						allowFileManager : false,
+					});
+
+					K('#image2').click(function() {
+						if($(".images_del").length >= 4){
+							alert('最多上传4张');
+							return;
+						}
+
+						editor.loadPlugin('image', function() {
+							editor.plugin.imageDialog({
+								showRemote : false,
+								clickFn : function(url, title, width, height, border, align) {
+									var images_content = `<div style="text-align:center;" class="col-sm-2">
+										<input type="hidden" name="images[]" value="${url}"/>
+										<img src="${url}" class="img-responsive">
+										<button class="btn-block images_del" onclick="images_del(this)"  type="button">删 除</button>
+									</div>`;
+
+									K('#J_imageView').append(images_content);
+									editor.hideDialog();
+								}
+							});
+						});
+					});
+				});
+
+				//删除图片
+				function images_del(obj){
+					var image = $(obj).prev().attr("src");
+					$.ajax({
+						type:"post",
+						url:"/index/oss/delete_json",
+						data:{'image': image},
+						dataType:"json",
+						success:function(result){
+							if(result.code == 1){
+								$(obj).parent().remove();
+							}else{
+								new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+							}
+						}
+					});
+				}
+			</script>
+		</div>
+
+		<div class="container" style="margin-top: 50px;">
+			<button type="button" class="btn btn-primary" id="submit_do">提交</button>
+		</div>
+	</form>
+</div>
+<script type="text/javascript">
+	//执行编辑菜单
+	$(document).on("click", "#submit_do", function(){
+		var errorNum = 0;
+		if ($.trim($("input[name='title']").val()) == "") {
+			new $.zui.Messager('请输入标题！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		if ($.trim($("input[name='type']").val()) == "") {
+			new $.zui.Messager('请输入标识！', {type: 'warning',icon: 'warning-sign'}).show();
+			errorNum += 1;
+		}
+
+		if (errorNum == 0) {
+			var data = $("#add_form").serialize();
+			$.ajax({
+				type:"post",
+				url:"advertAdd",
+				dataType:"json",
+				data:data,
+				success:function(result){
+					if (result.code == -1) {
+						window.top.relogin();
+					} else if (result.code == 1) {
+						window.parent.getData();
+						window.parent.modal_close();
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+</script>
+</body>
+</html>

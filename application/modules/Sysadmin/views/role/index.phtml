@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>角色管理</title>
+	<link rel="stylesheet" type="text/css" href="/public/zui/dist/css/zui.min.css">
+	<link rel="stylesheet" href="/public/zui/dist/lib/datatable/zui.datatable.min.css">
+	<script type="text/javascript" src="/public/zui/dist/lib/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/public/zui/dist/js/zui.min.js"></script>
+	<script src="/public/zui/dist/lib/datatable/zui.datatable.min.js"></script>
+	<script src="/public/common/common.js"></script>
+</head>
+<body>
+<div class="panel-successcvcv" style="padding-top:37px;">
+	<div class="panel-heading navbar-fixed-top" style="background:#ddf4df;">
+		<span class="col-sm-1">角色管理</span>
+		<?php
+			if(isset($child_menu[29])) echo '<button class="btn btn-sm menu_edit" data-iframe="add">新增</button>';
+			if(isset($child_menu[30])) echo '<button class="btn btn-sm" type="button" id="role_delete" >删除</button>';
+		?>
+	</div>
+
+	<div class="panel-body">
+		<form id="role_list" method="post">
+			<table class="table datatable"></table>
+		</form>
+
+		<div id="pageContent"></div>
+		<script type="text/javascript">
+			$('#pageContent').on('click', '.pager > li > a', function() {
+				var down = $(this).html();
+				var page_code = 1;
+				if (!isNaN(down)) {
+					page_code = down;
+				}
+
+				getData(page_code);
+			});
+		</script>
+	</div>
+</div>
+<script type="text/javascript">
+	$('table.datatable').datatable({checkable: true, checkboxName:'id[]'});
+	getData(1); //初始化数据表格
+
+	//获取数据
+	function getData(page_code){
+		$.ajax({
+			type:"post",
+			url:"index/page_code/" + page_code,
+			dataType:"json",
+			success:function(result){
+				var cols = [
+					{width: 100, text: '#', colClass: 'text-center'},
+					{width: 300, text: '角色名称'},
+					{width: 200, text: '编辑者'},
+					{width: 150, text: '编辑时间', colClass: 'text-center'},
+					{width: 100, text: '操作', colClass: 'text-center'}
+				];
+				var rows = [];
+				var menus = "";
+				$.each(result.list, function(index,obj){
+					if(obj.updater == null){obj.updater = "";}
+					utime = getMyDate(parseInt(obj.utime + '000'));
+					menus = '<a href="#" class="menu_edit" data-iframe="edit/id/'+obj.id+'"><i class="icon-edit"></i></a>';
+					rows.push({checked: false, id:obj.id, data: [obj.id, obj.name, obj.updater, utime, menus]});
+				});
+
+				$('table.datatable').datatable('load', {cols:cols, rows:rows});
+				$("#pageContent").html(result.page);
+			}
+		});
+	}
+
+	//删除角色
+	$(document).on("click", "#role_delete", function(){
+		var form = $("#role_list").serialize();
+		var id = $("input[name='id[]']:checked").val();
+		if (!id) {
+			new $.zui.Messager('请选择菜单！', {type: 'warning',icon: 'warning-sign'}).show();
+		}else{
+			$.ajax({
+				type:"post",
+				url:"batch",
+				dataType:"json",
+				data:form,
+				success:function(result){
+					if (result.code == -1) {
+						window.top.relogin();
+					} else if (result.code == 1) {
+						getData(1);
+					} else {
+						new $.zui.Messager(result.msg, {type:'danger', icon:'exclamation-sign'}).show();
+					}
+				}
+			});
+		}
+	});
+
+	//打开编辑对话框
+	$(document).on("click", ".menu_edit", function(){
+		var iframe = $(this).data("iframe");
+		$.zui.modalTrigger.show({title:'编辑角色', size:'fullscreen', iframe:iframe});
+	})
+
+	//关闭编辑对话框
+	function modal_close(){
+		$.zui.modalTrigger.close();
+	}
+</script>
+</body>
+</html>
